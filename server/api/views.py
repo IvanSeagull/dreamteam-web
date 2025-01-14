@@ -1,72 +1,39 @@
-import json
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import CustomUser
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login as auth_login, authenticate
+from django.views.decorators.csrf import csrf_protect
+from .forms import CustomUserCreationForm
 
-
-@csrf_exempt
+@csrf_protect
 def signup(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            username = data.get('username')
-            email = data.get('email')
-            password = data.get('password')
-            name = data.get('name')
-            dob = data.get('date_of_birth')
+    if request.method == "POST":
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, "Account created!")
+            return redirect("login_view")
+    else:
+        form = CustomUserCreationForm()
+    return render(request, "signup.html", {"form": form})
 
-            if CustomUser.objects.filter(username=username).exists():
-                return JsonResponse({'error': 'Username already taken.'}, status=400)
-
-            user = CustomUser.objects.create_user(
-                username=username,
-                email=email,
-                password=password,
-                name=name,
-                date_of_birth=dob
+@csrf_protect
+def login_view(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = authenticate(
+                request, 
+                username=form.cleaned_data.get("username"),
+                password=form.cleaned_data.get("password")
             )
-            return JsonResponse({'message': 'User created!', 'user_id': user.id}, status=201)
-
-        except (json.JSONDecodeError, KeyError) as e:
-            return JsonResponse({'error': f'Invalid data: {e}'}, status=400)
-
-    return JsonResponse({'error': 'Only POST requests allowed.'}, status=405)
-
-
-@csrf_exempt
-def api_login(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            username = data.get('username')
-            password = data.get('password')
-
-            user = authenticate(request, username=username, password=password)
             if user is not None:
-                login(request, user)
-                return JsonResponse({'message': 'Login successful.'}, status=200)
-            else:
-                return JsonResponse({'error': 'Invalid credentials.'}, status=401)
-        except (json.JSONDecodeError, KeyError) as e:
-            return JsonResponse({'error': f'Invalid data: {e}'}, status=400)
-    return JsonResponse({'error': 'Only POST requests allowed.'}, status=405)
+                auth_login(request, user)
+                messages.success(request, f"Welcome {user.username}!")
 
-
-@login_required
-def profile(request):
-    """
-    GET /api/profile/
-    Requires a valid session cookie from a prior login.
-    Returns basic user data in JSON.
-    """
-    user = request.user
-    data = {
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "name": user.name,
-        "date_of_birth": user.date_of_birth,
-    }
-    return JsonResponse(data)
+                # Check if ?next= is specified (e.g., ?next=http://localhost:8080/)
+                next_url = request.GET.get('next', 'http://localhost:8080/')
+                return redirect(next_url)
+    else:
+        form = AuthenticationForm()
+    return render(request, "login.html", {"form": form})

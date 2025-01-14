@@ -1,10 +1,10 @@
 # api/urls.py
 from django.urls import path
-from .views import signup, api_login, profile
+from .views import signup, login_view
 
 urlpatterns = [
     path('signup', signup, name='signup'),
-    path('login', api_login, name='login'),
-    path('profile', profile, name='profile'),
+    path('login', login_view, name='login_view'),
+    # path('profile', profile, name='profile'),
     # Other routes...
 ]
