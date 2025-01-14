@@ -26,14 +26,14 @@ def signup(request):
             return redirect(next_url)
         else:
             print("Signup form is invalid.")
-            print(form.errors)
+            return render(request, "signup.html", {"form": form, "next": next_url})
     else:
         form = CustomUserCreationForm()
     return render(request, "signup.html", {"form": form, "next": next_url})
 
 @csrf_protect
 def login_view(request):
-    next_url = request.GET.get('next', 'http://localhost:5173/')
+    next_url = request.GET.get('next', 'http://localhost:5173/profile')
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
