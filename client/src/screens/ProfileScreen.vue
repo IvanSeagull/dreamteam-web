@@ -33,7 +33,7 @@ export default defineComponent({
 
     onMounted(async () => {
       try {
-        const resp = await fetch('http://localhost:8000/api/profile-data/', {
+        const resp = await fetch('http://localhost:8000/api/profile-data', {
           credentials: 'include',
         });
         if (!resp.ok) {
