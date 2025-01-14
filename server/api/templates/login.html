@@ -9,10 +9,11 @@
       {% csrf_token %} {{ form.as_p }}
       <button type="submit">Login</button>
     </form>
-
     <p>
       Don’t have an account?
-      <a href="{% url 'signup' %}">Sign up here</a>
+      <a href="{% url 'signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}"
+        >Sign up here</a
+      >
     </p>
   </body>
 </html>

@@ -28,7 +28,7 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'api.CustomUser'
 
-APPEND_SLASH = False
+APPEND_SLASH = True
 
 LOGIN_URL = '/api/login' 
 

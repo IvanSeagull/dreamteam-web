@@ -27,7 +27,7 @@ export default defineComponent({
 
     onMounted(async () => {
       try {
-        const resp = await fetch('http://localhost:8000/api/profile-data', {
+        const resp = await fetch('http://localhost:8000/api/profile-data/', {
           credentials: 'include',
         });
 
@@ -43,12 +43,12 @@ export default defineComponent({
     });
 
     const goToLogin = () => {
-      window.location.href = 'http://localhost:8000/api/login?next=http://localhost:5173/profile';
+      window.location.href = 'http://localhost:8000/api/login/?next=http://localhost:5173/profile';
     };
 
     const logout = async () => {
       try {
-        const resp = await fetch('http://localhost:8000/api/logout', {
+        const resp = await fetch('http://localhost:8000/api/logout/', {
           method: 'POST',
           credentials: 'include',
         });
