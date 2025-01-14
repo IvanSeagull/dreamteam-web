@@ -5,6 +5,9 @@ from django.contrib.auth import login as auth_login, authenticate
 from django.views.decorators.csrf import csrf_protect
 from .forms import CustomUserCreationForm
 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
 @csrf_protect
 def signup(request):
     if request.method == "POST":
@@ -37,3 +40,20 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, "login.html", {"form": form})
+
+
+@login_required
+def profile_data(request):
+    """
+    GET /api/profile-data/
+    Returns user data as JSON if authenticated, else 302 redirect to LOGIN_URL.
+    """
+    user = request.user
+    data = {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'name': user.name,
+        'date_of_birth': user.date_of_birth,
+    }
+    return JsonResponse(data, status=200)
