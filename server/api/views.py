@@ -3,7 +3,10 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login as auth_login, authenticate, logout
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 from .forms import CustomUserCreationForm
+from .models import CustomUser
 
 from django.http import JsonResponse
 
@@ -23,7 +26,7 @@ def signup(request):
             )
             if newUser is not None:
                 auth_login(request, newUser)
-            return redirect(next_url)
+            return redirect(next_url +"/"+ newUser.username)
         else:
             print("Signup form is invalid.")
             return render(request, "signup.html", {"form": form, "next": next_url})
@@ -45,7 +48,7 @@ def login_view(request):
             if user is not None:
                 auth_login(request, user)
                 messages.success(request, f"Welcome {user.username}!")
-                return redirect(next_url)
+                return redirect(next_url +"/"+ user.username)
     else:
         form = AuthenticationForm()
     return render(request, "login.html", {"form": form, "next": next_url})
@@ -78,3 +81,18 @@ def logout_view(request):
         logout(request)
         return JsonResponse({'message': 'Logged out'}, status=200)
     return JsonResponse({'error': 'Only POST allowed'}, status=405)
+
+@require_GET
+def get_user_by_username(request, username):
+    try:
+        user = CustomUser.objects.get(username=username)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    
+    data = {
+        'username': user.username,
+        'email': user.email,
+        'name': user.name,
+        'date_of_birth': user.date_of_birth,
+    }
+    return JsonResponse(data, status=200)

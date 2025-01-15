@@ -3,70 +3,34 @@
     <div class="navbar-container">
       <router-link to="/" class="navbar-link">Home</router-link>
 
-      <template v-if="isLoggedIn">
-        <router-link to="/profile" class="navbar-link">Profile</router-link>
-        <button @click="logout" class="navbar-button">Logout</button>
+      <template v-if="userStore.isAuthenticated">
+        <router-link :to="`/profile/${userStore.user?.username}`" class="navbar-link"
+          >Profile</router-link
+        >
+        <button @click="userStore.logout" class="navbar-button" :disabled="userStore.loading">
+          Logout
+        </button>
       </template>
 
       <template v-else>
-        <button @click="goToLogin" class="navbar-button">Login</button>
+        <button @click="userStore.login" class="navbar-button">Login</button>
+        <button @click="userStore.signup" class="navbar-button">Sign Up</button>
       </template>
     </div>
   </nav>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { defineComponent } from 'vue';
+import { useUserStore } from '../stores/user';
 
 export default defineComponent({
   name: 'Navbar',
   setup() {
-    const isLoggedIn = ref(false);
-    const router = useRouter();
-
-    onMounted(async () => {
-      try {
-        const resp = await fetch('http://localhost:8000/api/profile-data/', {
-          credentials: 'include',
-        });
-
-        console.log(resp.status);
-        if (resp.status === 200) {
-          isLoggedIn.value = true;
-        } else {
-          isLoggedIn.value = false;
-        }
-      } catch (error) {
-        isLoggedIn.value = false;
-      }
-    });
-
-    const goToLogin = () => {
-      window.location.href = 'http://localhost:8000/api/login/?next=http://localhost:5173/profile';
-    };
-
-    const logout = async () => {
-      try {
-        const resp = await fetch('http://localhost:8000/api/logout/', {
-          method: 'POST',
-          credentials: 'include',
-        });
-        if (resp.ok) {
-          isLoggedIn.value = false;
-          router.push('/');
-        } else {
-          console.error('Failed to logout. Status:', resp.status);
-        }
-      } catch (err) {
-        console.error('Logout error:', err);
-      }
-    };
+    const userStore = useUserStore();
 
     return {
-      isLoggedIn,
-      goToLogin,
-      logout,
+      userStore,
     };
   },
 });
@@ -107,6 +71,7 @@ export default defineComponent({
   color: #fff;
   border-radius: 4px;
 }
+
 .navbar-button:hover {
   background-color: #555;
 }
