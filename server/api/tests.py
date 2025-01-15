@@ -32,7 +32,7 @@ class AuthTests(TestCase):
             'next': self.profile_url
         })
 
-        self.assertRedirects(response, self.profile_url, fetch_redirect_response=False)
+        self.assertRedirects(response, f"{self.profile_url}/newuser", fetch_redirect_response=False)
         self.assertTrue(self.User.objects.filter(username='newuser').exists())
 
     # --- Signup Failure Tests ---
@@ -95,7 +95,7 @@ class AuthTests(TestCase):
             'password': 'testpassword123',
             'next': self.profile_url
         })
-        self.assertRedirects(response, self.profile_url, fetch_redirect_response=False)
+        self.assertRedirects(response, f"{self.profile_url}/testuser", fetch_redirect_response=False)
         user = response.wsgi_request.user
         self.assertTrue(user.is_authenticated)
 
