@@ -13,3 +13,16 @@ export interface IFindUser extends IUser {
   hobbies: string[];
   friends_count: number;
 }
+
+export interface IFriend {
+  id: number;
+  name: string;
+  username: string;
+}
+
+export interface IFriendRequest {
+  id: number;
+  sender_id: number;
+  sender_name: string;
+  sender_username: string;
+}

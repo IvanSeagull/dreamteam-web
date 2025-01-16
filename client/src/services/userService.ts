@@ -1,3 +1,5 @@
+import type { IFriend, IFriendRequest } from '../types/user';
+
 const BACKEND_URL = 'http://localhost:8000';
 
 export async function getUserByUsername(username: string) {
@@ -42,7 +44,7 @@ export async function sendFriendRequest(receiver_id: number) {
   }
 }
 
-export async function getFriends(username: string): Promise<any[]> {
+export async function getFriends(username: string): Promise<IFriend[]> {
   try {
     const url = new URL(`${BACKEND_URL}/api/friends/`);
     if (username) {
@@ -65,7 +67,7 @@ export async function getFriends(username: string): Promise<any[]> {
     throw error;
   }
 }
-export async function getFriendRequests(): Promise<any[]> {
+export async function getFriendRequests(): Promise<IFriendRequest[]> {
   try {
     const response = await fetch(`${BACKEND_URL}/api/friend-requests/`, {
       method: 'GET',

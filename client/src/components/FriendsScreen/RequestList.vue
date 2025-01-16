@@ -23,11 +23,12 @@ import {
   getFriendRequests,
   rejectFriendRequest,
 } from '../../services/userService';
+import type { IFriendRequest } from '../../types/user';
 
 export default defineComponent({
   name: 'RequestsList',
   setup() {
-    const requests = ref<any[]>([]);
+    const requests = ref<IFriendRequest[]>([]);
     const loading = ref(true);
     const error = ref('');
 

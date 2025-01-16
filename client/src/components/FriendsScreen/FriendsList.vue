@@ -21,11 +21,12 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getFriends } from '../../services/userService';
+import type { IFriend } from '../../types/user';
 
 export default defineComponent({
   name: 'FriendsList',
   setup() {
-    const friends = ref<any[]>([]);
+    const friends = ref<IFriend[]>([]);
     const loading = ref(true);
     const error = ref('');
     const route = useRoute();
