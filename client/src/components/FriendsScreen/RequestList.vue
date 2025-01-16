@@ -45,7 +45,6 @@ export default defineComponent({
     };
 
     const acceptRequest = async (requestId: number) => {
-      //   alert(`Accept request ${requestId}`);
       try {
         const success = await acceptFriendRequest(requestId);
         if (success) {
@@ -60,7 +59,6 @@ export default defineComponent({
     };
 
     const rejectRequest = async (requestId: number) => {
-      //   alert(`Reject request ${requestId}`);
       try {
         const success = await rejectFriendRequest(requestId);
         if (success) {
