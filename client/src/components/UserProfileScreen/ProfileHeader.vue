@@ -9,10 +9,31 @@
     </div>
 
     <div class="buttons">
-      <button v-if="isOwnProfile" @click="onGoToSettings" class="button settings-button">
+      <button v-if="isOwnProfile" @click="$emit('go-to-settings')" class="button settings-button">
         Settings
       </button>
-      <button v-else @click="onAddFriend" class="button add-friend-button">Add Friend</button>
+      <template v-else>
+        <button
+          v-if="friendStatus === 'not_friends'"
+          @click="$emit('add-friend')"
+          class="button add-friend-button"
+        >
+          Add Friend
+        </button>
+        <button v-if="friendStatus === 'request_sent'" class="button pending-button" disabled>
+          Friend Request Sent
+        </button>
+        <button v-if="friendStatus === 'friends'" class="button friends-button" disabled>
+          Friends
+        </button>
+        <button
+          v-if="friendStatus === 'request_received'"
+          @click="$emit('accept-friend')"
+          class="button accept-friend-button"
+        >
+          Accept Friend Request
+        </button>
+      </template>
     </div>
   </div>
 </template>
@@ -23,6 +44,10 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'ProfileHeader',
   props: {
+    id: {
+      type: Number,
+      required: true,
+    },
     name: {
       type: String,
       required: true,
@@ -41,16 +66,12 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-  },
-  emits: ['add-friend', 'go-to-settings'],
-  methods: {
-    onAddFriend() {
-      this.$emit('add-friend');
-    },
-    onGoToSettings() {
-      this.$emit('go-to-settings');
+    friendStatus: {
+      type: String,
+      required: true,
     },
   },
+  emits: ['go-to-settings', 'add-friend', 'accept-friend'],
 });
 </script>
 
@@ -125,6 +146,27 @@ export default defineComponent({
 
 .add-friend-button:hover {
   background-color: #2fa360;
+}
+
+.pending-button {
+  background-color: #f6ad55;
+  color: #ffffff;
+  cursor: not-allowed;
+}
+
+.friends-button {
+  background-color: #4caf50;
+  color: #ffffff;
+  cursor: not-allowed;
+}
+
+.accept-friend-button {
+  background-color: #38b2ac;
+  color: #ffffff;
+}
+
+.accept-friend-button:hover {
+  background-color: #319795;
 }
 
 @media (max-width: 600px) {

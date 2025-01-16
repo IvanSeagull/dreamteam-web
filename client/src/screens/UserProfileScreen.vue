@@ -4,26 +4,38 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else-if="user" class="content">
       <ProfileHeader
+        :id="user.id"
         :name="user.name"
         :username="user.username"
         :profilePicture="'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541'"
         :isOwnProfile="isOwnProfile"
-        @add-friend="addFriend"
-        @go-to-settings="goToSettings"
+        :friendStatus="user.friend_status"
+        @add-friend="handleAddFriend"
+        @go-to-settings="handleGoToSettings"
+        @accept-friend="handleAcceptFriend"
       />
       <ProfileDetails :email="user.email" :dateOfBirth="user.date_of_birth" />
+
+      <div class="friends-section">
+        <p>
+          Friends: {{ user.friends_count || 0 }}
+          <router-link :to="`/friends/${user.username}`" class="view-friends-link"
+            >View Friends</router-link
+          >
+        </p>
+      </div>
+
       <HobbiesList :hobbies="user.hobbies || ['hobby1', 'hobby2', 'hobby3']" />
     </div>
     <div v-else class="not-found">User not found.</div>
   </div>
 </template>
-
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { getUserByUsername } from '../services/userService';
+import { getUserByUsername, sendFriendRequest } from '../services/userService';
 import { useUserStore } from '../stores/user';
-import type { User } from '../types/user';
+import type { IFindUser } from '../types/user';
 import ProfileDetails from '../components/UserProfileScreen/ProfileDetails.vue';
 import ProfileHeader from '../components/UserProfileScreen/ProfileHeader.vue';
 import HobbiesList from '../components/UserProfileScreen/HobbiesList.vue';
@@ -38,7 +50,7 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const userStore = useUserStore();
-    const user = ref<User | null>(null);
+    const user = ref<IFindUser | null>(null);
     const loading = ref(true);
     const error = ref('');
 
@@ -66,18 +78,36 @@ export default defineComponent({
       }
     };
 
-    const addFriend = () => {
-      alert('Add Friend functionality coming soon!');
+    const handleAddFriend = async () => {
+      if (!user.value) return;
+
+      const success = await sendFriendRequest(user.value.id);
+      if (success) {
+        user.value.friend_status = 'request_sent';
+      } else {
+      }
     };
 
-    const goToSettings = () => {
-      alert('Redirecting to Settings...');
+    const handleGoToSettings = () => {
+      alert('Redirecting to settings...');
+    };
+
+    const handleAcceptFriend = () => {
+      alert('Accepting friend request... (functionality pending)');
     };
 
     onMounted(loadUser);
     watch(() => route.params.username, loadUser);
 
-    return { user, loading, error, isOwnProfile, addFriend, goToSettings };
+    return {
+      user,
+      loading,
+      error,
+      isOwnProfile,
+      handleAddFriend,
+      handleGoToSettings,
+      handleAcceptFriend,
+    };
   },
 });
 </script>
