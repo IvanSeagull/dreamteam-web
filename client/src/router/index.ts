@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainScreen from '../screens/MainScreen.vue';
-
 import UserProfileScreen from '../screens/UserProfileScreen.vue';
 import FriendsScreen from '../screens/FriendsScreen.vue';
 import SettingsScreen from '../screens/SettingsScreen.vue';

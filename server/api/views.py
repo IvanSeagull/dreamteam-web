@@ -257,6 +257,7 @@ def add_hobby(request) -> JsonResponse:
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
+
 @login_required
 @require_GET
 def get_similar_users(request) -> JsonResponse:
@@ -271,38 +272,58 @@ def get_similar_users(request) -> JsonResponse:
     
     # Base queryset excluding the current user
     users_qs = CustomUser.objects.exclude(id=current_user.id)
+    users_qs = users_qs.filter(date_of_birth__isnull=False)
     
-    # Apply age filtering if provided
+    # Apply age filtering
+    today = date.today()
+    
     if min_age is not None:
         try:
             min_age = int(min_age)
-            users_qs = users_qs.filter(date_of_birth__isnull=False)\
-                             .exclude(date_of_birth__gt=date.today() - timedelta(days=min_age*365))
+            if min_age > 0:
+                max_date = today - timedelta(days=min_age * 365.25)
+                users_qs = users_qs.filter(date_of_birth__lte=max_date)
         except ValueError:
             return JsonResponse({'error': 'Invalid min_age parameter'}, status=400)
             
     if max_age is not None:
         try:
             max_age = int(max_age)
-            users_qs = users_qs.filter(date_of_birth__isnull=False)\
-                             .exclude(date_of_birth__lt=date.today() - timedelta(days=(max_age+1)*365))
+            if max_age > 0:
+                min_date = today - timedelta(days=(max_age + 1) * 365.25)
+                users_qs = users_qs.filter(date_of_birth__gt=min_date)
         except ValueError:
             return JsonResponse({'error': 'Invalid max_age parameter'}, status=400)
 
-    # Calculate common hobbies for each user
+    # Calculate common hobbies and friend status for each user
     users_with_common = []
     for user in users_qs:
         user_hobbies = set(user.hobbies.values_list('id', flat=True))
         common_hobbies = current_user_hobbies.intersection(user_hobbies)
-        if common_hobbies:  # Only include users with at least one common hobby
+        
+        if len(common_hobbies) > 0:
+            # Determine friend status
+            if Friend.objects.filter(first_user=current_user, second_user=user).exists() or \
+               Friend.objects.filter(first_user=user, second_user=current_user).exists():
+                friend_status = 'friends'
+            elif FriendRequest.objects.filter(sender=current_user, receiver=user).exists():
+                friend_status = 'request_sent'
+            elif FriendRequest.objects.filter(sender=user, receiver=current_user).exists():
+                friend_status = 'request_received'
+            else:
+                friend_status = 'not_friends'
+
             common_hobby_details = list(Hobby.objects.filter(id__in=common_hobbies).values('name'))
             users_with_common.append({
                 'id': user.id,
                 'username': user.username,
                 'name': user.name,
-                'age': user.age,
+                'age': today.year - user.date_of_birth.year - (
+                    (today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day)
+                ),
                 'common_hobbies': common_hobby_details,
-                'common_hobbies_count': len(common_hobbies)
+                'common_hobbies_count': len(common_hobbies),
+                'friend_status': friend_status
             })
 
     # Sort by number of common hobbies (descending)
@@ -321,6 +342,8 @@ def get_similar_users(request) -> JsonResponse:
         'current_page': page,
         'total_users': len(users_with_common)
     })
+
+
 
 @csrf_exempt
 @login_required
@@ -376,6 +399,37 @@ def update_password(request):
             'email': request.user.email,
             'date_of_birth': request.user.date_of_birth,
         }
+        return JsonResponse({'user': user_data}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+    
+@csrf_exempt
+@login_required
+def update_general_info(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        name = data.get('name')
+        email = data.get('email')
+
+        if not name or not email:
+            return JsonResponse({'error': 'Name and email are required'}, status=400)
+
+        user = request.user
+        user.name = name
+        user.email = email
+        user.save()
+
+        user_data = {
+                'id': request.user.id,
+                'username': request.user.username,
+                'name': request.user.name,
+                'email': request.user.email,
+                'date_of_birth': request.user.date_of_birth,
+            }
         return JsonResponse({'user': user_data}, status=200)
 
     except json.JSONDecodeError:
