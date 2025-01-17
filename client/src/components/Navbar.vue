@@ -1,20 +1,26 @@
 <template>
   <nav class="navbar">
     <div class="navbar-container">
-      <router-link to="/" class="navbar-link">Home</router-link>
+      <div class="left">
+        <router-link to="/" class="navbar-link">Home</router-link>
 
+        <template v-if="userStore.isAuthenticated">
+          <router-link :to="`/profile/${userStore.user?.username}`" class="navbar-link"
+            >Profile</router-link
+          >
+        </template>
+      </div>
       <template v-if="userStore.isAuthenticated">
-        <router-link :to="`/profile/${userStore.user?.username}`" class="navbar-link"
-          >Profile</router-link
-        >
         <button @click="userStore.logout" class="navbar-button" :disabled="userStore.loading">
           Logout
         </button>
       </template>
 
       <template v-else>
-        <button @click="userStore.login" class="navbar-button">Login</button>
-        <button @click="userStore.signup" class="navbar-button">Sign Up</button>
+        <div class="right">
+          <button @click="userStore.login" class="navbar-button">Login</button>
+          <button @click="userStore.signup" class="navbar-button">Sign Up</button>
+        </div>
       </template>
     </div>
   </nav>
@@ -48,6 +54,17 @@ export default defineComponent({
 }
 
 .navbar-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.left {
+  display: flex;
+  gap: 1rem;
+}
+
+.right {
   display: flex;
   gap: 1rem;
 }
