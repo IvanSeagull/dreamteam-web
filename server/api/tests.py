@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-from api.models import FriendRequest, Friend
+from api.models import FriendRequest, Friend, CustomUser
 
 CustomUser = get_user_model()
 
@@ -198,3 +198,102 @@ class FriendFunctionalityTests(TestCase):
         response = self.client.post(reverse('reject_friend_request', args=[999]))
         self.assertEqual(response.status_code, 404)
         self.assertIn('Friend request not found', response.json()['error'])
+
+
+
+import json
+
+class UserProfileTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user1 = CustomUser.objects.create_user(
+            username='user1', email="user1@gmail.com", password='password1', name='User One'
+        )
+        self.user2 = CustomUser.objects.create_user(
+            username='user2', email="user2@gmail.com", password='password2', name='User Two'
+        )
+        self.client.login(username='user1', password='password1')
+
+    def test_update_general_info_success(self):
+        response = self.client.post(
+            reverse('general_settings'),
+            data=json.dumps({'name': 'Updated User', 'email': 'updated@gmail.com'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        user_data = response.json().get('user')
+        self.assertIsNotNone(user_data)
+        self.assertEqual(user_data['name'], 'Updated User')
+        self.assertEqual(user_data['email'], 'updated@gmail.com')
+
+        self.user1.refresh_from_db()
+        self.assertEqual(self.user1.name, 'Updated User')
+        self.assertEqual(self.user1.email, 'updated@gmail.com')
+
+    def test_update_general_info_missing_fields(self):
+        response = self.client.post(
+            reverse('general_settings'),
+            data=json.dumps({'name': 'Only Name'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+
+    def test_update_general_info_invalid_method(self):
+        response = self.client.get(reverse('general_settings'))
+        self.assertEqual(response.status_code, 405)
+        self.assertIn('error', response.json())
+
+    def test_update_general_info_invalid_json(self):
+        response = self.client.post(
+            reverse('general_settings'),
+            data='Invalid JSON',
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+
+    def test_update_password_success(self):
+        response = self.client.post(
+            reverse('password_settings'),
+            data=json.dumps({'password1': 'newpassword123', 'password2': 'newpassword123'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        user_data = response.json().get('user')
+        self.assertIsNotNone(user_data)
+
+        self.user1.refresh_from_db()
+        self.assertTrue(self.user1.check_password('newpassword123'))
+
+    def test_update_password_mismatch(self):
+        response = self.client.post(
+            reverse('password_settings'),
+            data=json.dumps({'password1': 'newpassword123', 'password2': 'differentpassword'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+
+    def test_update_password_missing_fields(self):
+        response = self.client.post(
+            reverse('password_settings'),
+            data=json.dumps({'password1': 'newpassword123'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+
+    def test_update_password_invalid_method(self):
+        response = self.client.get(reverse('password_settings'))
+        self.assertEqual(response.status_code, 405)
+        self.assertIn('error', response.json())
+
+    def test_update_password_invalid_json(self):
+        response = self.client.post(
+            reverse('password_settings'),
+            data='Invalid JSON',
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())

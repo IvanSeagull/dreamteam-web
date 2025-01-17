@@ -1,7 +1,8 @@
-import type { IFriend, IFriendRequest } from '../types/user';
+import type { IFriend, IFriendRequest, IUpdateUserInfoDTO } from '../types/user';
 
 const BACKEND_URL = 'http://localhost:8000';
 
+// ==================== USER ====================
 export async function getUserByUsername(username: string) {
   try {
     const response = await fetch(`${BACKEND_URL}/api/users/${username}/`, {
@@ -15,6 +16,8 @@ export async function getUserByUsername(username: string) {
     throw error;
   }
 }
+
+// ==================== FRIENDS ====================
 
 export async function sendFriendRequest(receiver_id: number) {
   const csrfToken = document.cookie
@@ -118,6 +121,55 @@ export async function rejectFriendRequest(requestId: number): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('Error rejecting friend request:', error);
+    return false;
+  }
+}
+
+// ==================== SETTINGS ====================
+export async function updateGeneralInfo(name: string, email: string): Promise<IUpdateUserInfoDTO> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/settings/general/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name, email }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update general info.');
+    }
+
+    const { user } = await response.json();
+    return user;
+  } catch (error) {
+    console.error('Error updating general info:', error);
+    throw error;
+  }
+}
+
+export async function updatePassword(password1: string, password2: string) {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/settings/password/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ password1, password2 }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update password.');
+    }
+
+    await response.json();
+    return true;
+  } catch (error) {
+    console.error('Error updating password:', error);
     return false;
   }
 }

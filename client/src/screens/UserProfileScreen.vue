@@ -32,7 +32,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getUserByUsername, sendFriendRequest } from '../services/userService';
 import { useUserStore } from '../stores/user';
 import type { IFindUser } from '../types/user';
@@ -49,6 +49,8 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute();
+    const router = useRouter();
+
     const userStore = useUserStore();
     const user = ref<IFindUser | null>(null);
     const loading = ref(true);
@@ -89,7 +91,7 @@ export default defineComponent({
     };
 
     const handleGoToSettings = () => {
-      alert('Redirecting to settings...');
+      router.push('/settings');
     };
 
     const handleAcceptFriend = () => {

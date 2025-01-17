@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login as auth_login, authenticate, logout
+from django.contrib.auth import login as auth_login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.http import JsonResponse
@@ -218,3 +218,70 @@ def reject_friend_request(request, request_id):
     friend_request.delete()
 
     return JsonResponse({'message': 'Friend request rejected'}, status=200)
+
+
+@csrf_exempt
+@login_required
+def update_general_info(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        name = data.get('name')
+        email = data.get('email')
+
+        if not name or not email:
+            return JsonResponse({'error': 'Name and email are required'}, status=400)
+
+        user = request.user
+        user.name = name
+        user.email = email
+        user.save()
+
+        user_data = {
+                'id': request.user.id,
+                'username': request.user.username,
+                'name': request.user.name,
+                'email': request.user.email,
+                'date_of_birth': request.user.date_of_birth,
+            }
+        return JsonResponse({'user': user_data}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+    
+
+@csrf_exempt
+@login_required
+def update_password(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        password1 = data.get('password1')
+        password2 = data.get('password2')
+
+        if not password1 or not password2:
+            return JsonResponse({'error': 'Both passwords are required'}, status=400)
+
+        if password1 != password2:
+            return JsonResponse({'error': 'Passwords do not match'}, status=400)
+
+        user = request.user
+        user.set_password(password1)
+        user.save()
+        update_session_auth_hash(request, user)
+
+        user_data = {
+            'id': request.user.id,
+            'username': request.user.username,
+            'name': request.user.name,
+            'email': request.user.email,
+            'date_of_birth': request.user.date_of_birth,
+        }
+        return JsonResponse({'user': user_data}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)

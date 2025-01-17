@@ -26,3 +26,11 @@ export interface IFriendRequest {
   sender_name: string;
   sender_username: string;
 }
+
+export interface IUpdateUserInfoDTO {
+  id: number;
+  username: string;
+  email: string;
+  name: string;
+  date_of_birth: string;
+}

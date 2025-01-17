@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
-import type { User } from '../types/user';
+import type { IUser } from '../types/user';
 
 interface UserState {
-  user: User | null;
+  user: IUser | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
@@ -22,6 +22,10 @@ export const useUserStore = defineStore('user', {
 
     signup() {
       window.location.href = 'http://localhost:8000/api/signup/';
+    },
+
+    updateUser(updatedUser: IUser) {
+      this.user = updatedUser;
     },
 
     async logout() {
