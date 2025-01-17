@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login as auth_login, authenticate, logout
+from django.contrib.auth import login as auth_login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.http import JsonResponse
