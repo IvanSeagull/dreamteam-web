@@ -27,7 +27,7 @@
       <div v-else-if="!users.length">No users found with similar hobbies</div>
       <div v-else class="users-grid">
         <div v-for="user in users" :key="user.id" class="user-card">
-          <RouterLink :to="{ name: 'Profile', params: { username: user.username }}">
+          <RouterLink :to="{ name: 'Profile', params: { username: user.username } }">
             <h3>{{ user.name }}</h3>
             <p>@{{ user.username }}</p>
           </RouterLink>
@@ -36,9 +36,13 @@
           <div class="hobby-tags">
             <span v-for="hobby in user.common_hobbies" :key="hobby.name">{{ hobby.name }}</span>
           </div>
-          <button 
+          <button
             @click="handleFriendRequest(user.id)"
-            :disabled="sendingRequest === user.id || user.friend_status === 'friends' || user.friend_status === 'request_sent'"
+            :disabled="
+              sendingRequest === user.id ||
+              user.friend_status === 'friends' ||
+              user.friend_status === 'request_sent'
+            "
             :class="getFriendButtonClass(user)"
           >
             {{ getFriendButtonText(user) }}
@@ -50,7 +54,9 @@
       <div v-if="users.length" class="pagination">
         <button :disabled="currentPage === 1" @click="changePage(currentPage - 1)">Previous</button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">Next</button>
+        <button :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
+          Next
+        </button>
       </div>
     </div>
   </div>
@@ -95,7 +101,11 @@ const getFriendButtonClass = (user: ISimilarUser) => {
 const fetchUsers = async (page: number) => {
   loading.value = true;
   try {
-    const response = await getSimilarUsers(page, minAge.value ?? undefined, maxAge.value ?? undefined);
+    const response = await getSimilarUsers(
+      page,
+      minAge.value ?? undefined,
+      maxAge.value ?? undefined,
+    );
     users.value = response.users;
     totalPages.value = response.total_pages;
     currentPage.value = response.current_page;
@@ -155,6 +165,15 @@ onMounted(() => {
 .auth-prompt {
   text-align: center;
   padding: 40px;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-button {
+  margin-top: 20px;
 }
 
 .filters {
@@ -244,8 +263,8 @@ onMounted(() => {
   margin-top: 20px;
 }
 
-.pagination button{
-  color:white;
+.pagination button {
+  color: white;
   border-color: white;
 }
 
@@ -266,5 +285,4 @@ input {
 .filters .filter-group button {
   color: white;
 }
-
 </style>
