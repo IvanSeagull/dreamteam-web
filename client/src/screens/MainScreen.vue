@@ -136,7 +136,7 @@ const handleFriendRequest = async (userId: number) => {
 };
 
 const goToAuth = () => {
-  window.location.href = 'http://localhost:8000/api/login/?next=http://localhost:5173';
+  window.location.href = 'http://localhost:8000/api/login/?next=http://localhost:5173/profile';
 };
 
 onMounted(() => {
@@ -199,6 +199,7 @@ onMounted(() => {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
+  color: white;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
@@ -243,6 +244,11 @@ onMounted(() => {
   margin-top: 20px;
 }
 
+.pagination button{
+  color:white;
+  border-color: white;
+}
+
 a {
   color: white;
   text-decoration: none;
@@ -256,4 +262,9 @@ input {
   border-radius: 4px;
   margin: 0 10px;
 }
+
+.filters .filter-group button {
+  color: white;
+}
+
 </style>
