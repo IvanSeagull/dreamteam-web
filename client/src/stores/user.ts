@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia';
-import type { IUser } from '../types/user';
+import type { IUser, IHobby } from '../types/user';
+import { getAllHobbies, updateUserHobbies, addHobby } from '../services/userService';
 
 interface UserState {
   user: IUser | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  availableHobbies: IHobby[];
+  hobbiesLoading: boolean;
 }
 
 export const useUserStore = defineStore('user', {
@@ -14,7 +17,10 @@ export const useUserStore = defineStore('user', {
     isAuthenticated: false,
     loading: false,
     error: null,
+    availableHobbies: [],
+    hobbiesLoading: false,
   }),
+
   actions: {
     login() {
       window.location.href = 'http://localhost:8000/api/login/';
@@ -43,6 +49,7 @@ export const useUserStore = defineStore('user', {
         if (response.ok) {
           this.user = null;
           this.isAuthenticated = false;
+          this.availableHobbies = [];
         } else {
           this.error = 'Logout failed.';
         }
@@ -63,6 +70,8 @@ export const useUserStore = defineStore('user', {
           const data = await response.json();
           this.user = data;
           this.isAuthenticated = true;
+          // Load hobbies after successful authentication
+          await this.loadHobbies();
         } else {
           this.error = 'Failed to fetch user data.';
           this.user = null;
@@ -73,6 +82,43 @@ export const useUserStore = defineStore('user', {
         this.isAuthenticated = false;
       } finally {
         this.loading = false;
+      }
+    },
+
+    async loadHobbies() {
+      this.hobbiesLoading = true;
+      try {
+        this.availableHobbies = await getAllHobbies();
+      } catch (error) {
+        console.error('Failed to load hobbies:', error);
+        this.error = 'Failed to load hobbies';
+      } finally {
+        this.hobbiesLoading = false;
+      }
+    },
+
+    async addNewHobby(name: string, description?: string) {
+      try {
+        const newHobby = await addHobby(name, description);
+        this.availableHobbies.push(newHobby);
+        return newHobby;
+      } catch (error) {
+        console.error('Failed to add hobby:', error);
+        throw error;
+      }
+    },
+
+    async updateUserHobbies(hobbyIds: number[]) {
+      if (!this.user) return;
+      
+      try {
+        const updatedHobbies = await updateUserHobbies(hobbyIds);
+        if (this.user) {
+          this.user.hobbies = updatedHobbies;
+        }
+      } catch (error) {
+        console.error('Failed to update user hobbies:', error);
+        throw error;
       }
     },
 

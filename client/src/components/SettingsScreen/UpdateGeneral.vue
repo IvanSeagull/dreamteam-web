@@ -1,3 +1,4 @@
+# UpdateGeneral.vue
 <template>
   <div class="update-general">
     <h2>Update General Information</h2>
@@ -25,6 +26,7 @@
 import { defineComponent, ref } from 'vue';
 import { updateGeneralInfo } from '../../services/userService';
 import { useUserStore } from '../../stores/user';
+import type { IUser } from '../../types/user';
 
 export default defineComponent({
   name: 'UpdateGeneral',
@@ -39,8 +41,19 @@ export default defineComponent({
       try {
         successMessage.value = '';
         errorMessage.value = '';
-        const user = await updateGeneralInfo(name.value, email.value);
-        userStore.updateUser(user);
+        
+        const updatedUser = await updateGeneralInfo(name.value, email.value);
+        
+        // Ensure we have hobbies array and other required fields
+        const userToUpdate: IUser = {
+          username: updatedUser.username,
+          email: updatedUser.email,
+          name: updatedUser.name,
+          date_of_birth: updatedUser.date_of_birth,
+          hobbies: updatedUser.hobbies || [] // Ensure hobbies is always an array
+        };
+        
+        userStore.updateUser(userToUpdate);
         successMessage.value = 'General information updated successfully!';
       } catch (error: any) {
         console.error('Error updating general info:', error);
