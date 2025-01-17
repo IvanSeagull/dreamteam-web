@@ -347,3 +347,36 @@ def update_user_hobbies(request) -> JsonResponse:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     
 
+@csrf_exempt
+@login_required
+def update_password(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        password1 = data.get('password1')
+        password2 = data.get('password2')
+
+        if not password1 or not password2:
+            return JsonResponse({'error': 'Both passwords are required'}, status=400)
+
+        if password1 != password2:
+            return JsonResponse({'error': 'Passwords do not match'}, status=400)
+
+        user = request.user
+        user.set_password(password1)
+        user.save()
+        update_session_auth_hash(request, user)
+
+        user_data = {
+            'id': request.user.id,
+            'username': request.user.username,
+            'name': request.user.name,
+            'email': request.user.email,
+            'date_of_birth': request.user.date_of_birth,
+        }
+        return JsonResponse({'user': user_data}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)

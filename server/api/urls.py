@@ -6,7 +6,7 @@ from .views import (
     get_friends, get_friend_requests, 
     accept_friend_request, reject_friend_request,
     get_all_hobbies, add_hobby, get_similar_users,
-    update_user_hobbies
+    update_user_hobbies, update_password
 )
 
 urlpatterns = [
@@ -23,5 +23,6 @@ urlpatterns = [
     path('hobbies/', get_all_hobbies, name='get_all_hobbies'),
     path('hobbies/add/', add_hobby, name='add_hobby'),
     path('users/similar/', get_similar_users, name='get_similar_users'),
-    path('users/hobbies/update/', update_user_hobbies, name='update_user_hobbies'),
+    path('users/hobbies/update/', update_user_hobbies, name='update_user_hobbies'),path("settings/general/", update_general_info, name="general_settings"),
+    path("settings/password/", update_password, name="password_settings"),
 ]
