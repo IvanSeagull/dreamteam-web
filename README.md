@@ -1,3 +1,10 @@
+# Team Members Group 43
+
+- Ivan Konakotin - implemented auth and friends system (both frontend and backend)
+- Maxim Tsurkanu - selenium tests, backend fixes and deployment
+- Arsen Zholanov - implemented hobbies and main screen with filtering (both frontend and backend)
+- Bohdan Vereitin - worked on ui of signup/login and main screen with filtering (both frontend and backend)
+
 # Project Setup
 
 This project consists of two main parts:
