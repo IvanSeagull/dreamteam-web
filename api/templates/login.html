@@ -51,16 +51,59 @@
       button:focus-visible {
         outline: 4px auto -webkit-focus-ring-color;
       }
-    
-    </style>
 
+      form {
+        padding: 20px;
+        border: 1px solid #333;
+        border-radius: 10px;
+        background-color: #1a1a1a;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      input {
+        padding: 0.6em;
+        margin-bottom: 1em;
+        border: 1px solid #555;
+        border-radius: 8px;
+        background-color: #1a1a1a;
+        color: rgba(255, 255, 255, 0.87);
+        font-size: 1em;
+        width: 90%;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #646cff;
+      }
+    </style>
   </head>
+
   <body>
     <h1>Login</h1>
     <form method="post">
-      {% csrf_token %} {{ form.as_p }}
+      {% csrf_token %} {{ form.non_field_errors }}
+
+      <div>{{ form.username.label_tag }} {{ form.username }}</div>
+
+      <div>{{ form.password.label_tag }} {{ form.password }}</div>
+
+      {% if form.errors %}
+      <div class="errors">
+        <ul>
+          {% for field in form %} {% for error in field.errors %}
+          <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+          {% endfor %} {% endfor %} {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
       <button type="submit">Login</button>
     </form>
+
     <p>
       Don’t have an account?
       <a href="{% url 'signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}"
@@ -68,8 +111,4 @@
       >
     </p>
   </body>
-
-
-
 </html>
-
