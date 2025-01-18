@@ -17,6 +17,7 @@
       <ProfileDetails :email="user.email" :dateOfBirth="user.date_of_birth" />
 
       <div class="friends-section">
+        <img class="friends-icon" src="/friends.png" alt="Friends" />
         <p>
           Friends: {{ user.friends_count || 0 }}
           <router-link :to="`/friends/${user.username}`" class="view-friends-link"
@@ -140,5 +141,16 @@ export default defineComponent({
   display: flex;
   align-items: start;
   flex-direction: column;
+}
+
+.friends-section {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.friends-icon {
+  width: 32px;
+  height: 32px;
 }
 </style>

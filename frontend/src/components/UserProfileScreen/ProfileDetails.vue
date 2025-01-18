@@ -1,11 +1,11 @@
 <template>
   <div class="profile-details">
     <div class="profile-details-item">
-      <img class="profile-details-item-icon" />
+      <img class="profile-details-item-icon" src="/mail.png" />
       <p class="profile-info">{{ email }}</p>
     </div>
     <div class="profile-details-item">
-      <img class="profile-details-item-icon" />
+      <img class="profile-details-item-icon" src="/calendar.png" />
       <p class="profile-info">{{ formattedDateOfBirth }}</p>
     </div>
   </div>
@@ -52,10 +52,10 @@ export default defineComponent({
 }
 
 .profile-details-item-icon {
-  width: 20px;
-  height: 20px;
-  background-color: #3490dc;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+
+  /* border-radius: 50%; */
 }
 
 .profile-info {
