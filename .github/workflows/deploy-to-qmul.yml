@@ -20,11 +20,8 @@ jobs:
 
       - name: Add GitHub Enterprise remote
         run: |
-          git remote add enterprise "https://github.qmul.ac.uk/ec20746/dreamteam-web.git"
-          git fetch enterprise
+          git remote add enterprise "https://${{ secrets.ENTERPRISE_TOKEN }}@github.qmul.ac.uk/ec20746/dreamteam-web.git"
 
-      - name: Push to GitHub Enterprise
-        env:
-          ENTERPRISE_TOKEN: ${{ secrets.ENTERPRISE_TOKEN }}
+      - name: Force push to GitHub Enterprise
         run: |
-          git push https://$ENTERPRISE_TOKEN@github.qmul.ac.uk/ec20746/dreamteam-web.git main --force
+          git push enterprise main --force
