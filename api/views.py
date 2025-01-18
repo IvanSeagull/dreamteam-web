@@ -78,7 +78,6 @@ def profile_data(request):
 
 @csrf_exempt
 def logout_view(request):
-    print("WTF")
     if request.method == 'POST':
         logout(request)
         return JsonResponse({'message': 'Logged out'}, status=200)
@@ -124,7 +123,6 @@ def send_friend_request(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print(data)
             receiver_id = data.get('receiver_id')
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON body'}, status=400)
