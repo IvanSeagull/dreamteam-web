@@ -1,0 +1,30 @@
+name: Push to GitHub Enterprise
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  push-to-enterprise:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add GitHub Enterprise remote
+        run: |
+          git remote add enterprise "https://github.qmul.ac.uk/ec20746/dreamteam-web.git"
+          git fetch enterprise
+
+      - name: Push to GitHub Enterprise
+        env:
+          ENTERPRISE_TOKEN: ${{ secrets.ENTERPRISE_TOKEN }}
+        run: |
+          git push https://$ENTERPRISE_TOKEN@github.qmul.ac.uk/ec20746/dreamteam-web.git main --force
