@@ -71,9 +71,13 @@ class SendAndAcceptSeleniumTest(LiveServerTestCase):
         # Find the receiver user card and send a friend request
         users_grid = self.browser.find_element(By.CLASS_NAME, 'users-grid')
         user_card = users_grid.find_element(By.CLASS_NAME, 'user-card')
-        friend_button = user_card.find_element(By.CLASS_NAME, 'friend-button')
-        receiver_username = user_card.find_element(By.TAG_NAME, 'p').text.strip()[1:]
+        # user_card_area = user_card.find_element(By.TAG_NAME, 'a')
+        user_card.click()
         time.sleep(0.5)
+        friend_button = self.browser.find_element(By.CLASS_NAME, 'add-friend-button')
+        receiver_username = self.browser.find_element(By.XPATH, '//*[@id="app"]/div/div/div/div[1]/div[1]/div/p').text.strip()[1:]
+        time.sleep(0.5)
+
         friend_button.click()
 
         # Fetch the receiver user from the database
