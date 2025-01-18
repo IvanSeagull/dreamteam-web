@@ -30,23 +30,12 @@
           <RouterLink :to="{ name: 'Profile', params: { username: user.username } }">
             <h3>{{ user.name }}</h3>
             <p>@{{ user.username }}</p>
+            <p>Age: {{ user.age }}</p>
+            <p>Common Hobbies ({{ user.common_hobbies_count }}):</p>
+            <div class="hobby-tags">
+              <span v-for="hobby in user.common_hobbies" :key="hobby.name">{{ hobby.name }}</span>
+            </div>
           </RouterLink>
-          <p>Age: {{ user.age }}</p>
-          <p>Common Hobbies ({{ user.common_hobbies_count }}):</p>
-          <div class="hobby-tags">
-            <span v-for="hobby in user.common_hobbies" :key="hobby.name">{{ hobby.name }}</span>
-          </div>
-          <button
-            @click="handleFriendRequest(user.id)"
-            :disabled="
-              sendingRequest === user.id ||
-              user.friend_status === 'friends' ||
-              user.friend_status === 'request_sent'
-            "
-            :class="getFriendButtonClass(user)"
-          >
-            {{ getFriendButtonText(user) }}
-          </button>
         </div>
       </div>
 
@@ -65,7 +54,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useUserStore } from '../stores/user';
-import { getSimilarUsers, sendFriendRequest } from '../services/userService';
+import { getSimilarUsers } from '../services/userService';
 import type { ISimilarUser } from '../types/user';
 
 const userStore = useUserStore();
@@ -76,27 +65,6 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 const minAge = ref<number | null>(null);
 const maxAge = ref<number | null>(null);
-const sendingRequest = ref<number | null>(null);
-
-const getFriendButtonText = (user: ISimilarUser) => {
-  if (sendingRequest.value === user.id) return 'Sending...';
-  switch (user.friend_status) {
-    case 'friends':
-      return 'Friends';
-    case 'request_sent':
-      return 'Request Sent';
-    case 'request_received':
-      return 'Accept Request';
-    default:
-      return 'Add Friend';
-  }
-};
-
-const getFriendButtonClass = (user: ISimilarUser) => {
-  const baseClass = 'friend-button';
-  if (sendingRequest.value === user.id) return `${baseClass} sending`;
-  return `${baseClass} ${user.friend_status}`;
-};
 
 const fetchUsers = async (page: number) => {
   loading.value = true;
@@ -131,20 +99,6 @@ const changePage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) fetchUsers(page);
 };
 
-const handleFriendRequest = async (userId: number) => {
-  if (sendingRequest.value !== null) return;
-  sendingRequest.value = userId;
-  try {
-    if (await sendFriendRequest(userId)) {
-      await fetchUsers(currentPage.value);
-    }
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to send friend request';
-  } finally {
-    sendingRequest.value = null;
-  }
-};
-
 const goToAuth = () => {
   window.location.href = 'http://localhost:8000/api/login/?next=http://localhost:5173/profile';
 };
@@ -157,7 +111,6 @@ onMounted(() => {
 <style scoped>
 .main-screen {
   min-height: 100vh;
-  background: #1a1a1a;
   color: white;
   padding: 20px;
 }

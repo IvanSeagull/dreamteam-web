@@ -60,7 +60,7 @@ export default defineComponent({
   display: flex;
   gap: 30px;
   width: 800px;
-  height: 500px;
+  min-height: 500px;
   margin: 0 auto;
   padding: 20px;
   background-color: #333;
