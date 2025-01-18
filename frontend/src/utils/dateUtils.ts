@@ -1,7 +1,6 @@
 export function formatDateOfBirth(dateOfBirth: string): string {
   const dob = new Date(dateOfBirth);
   const today = new Date();
-
   // Calculate age
   let age = today.getFullYear() - dob.getFullYear();
   const isBeforeBirthday =
@@ -11,6 +10,6 @@ export function formatDateOfBirth(dateOfBirth: string): string {
     age--;
   }
 
-  const currentFormattedDate = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
+  const currentFormattedDate = `${dob.getDate()}.${dob.getMonth() + 1}.${dob.getFullYear()}`;
   return `${age} y.o. (${currentFormattedDate})`;
 }

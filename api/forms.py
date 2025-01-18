@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 
 class CustomUserCreationForm(UserCreationForm):
+    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+
     class Meta(UserCreationForm.Meta):
         model = CustomUser
         fields = ["username", "email", "name", "date_of_birth", "password1", "password2"]
